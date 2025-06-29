@@ -3,4 +3,9 @@
     <string name="hello_world">Hello World</string>
     <string name="button_text">“I\’m a button!”</string>
     <string name="toast_message">"Label has been updated."</string>
+    <string name="android_love">I Love Android</string>
+    <string name="switch_text">Switch on/off</string>
+    <string name="pressme">Press Me</string>
+    <string name="checktext">Check this out!</string>
+
 </resources>
