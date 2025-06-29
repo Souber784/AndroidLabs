@@ -1,60 +1,64 @@
 package com.example.androidlabs;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.snackbar.Snackbar;
+
+import static com.example.utils.CommonConstants.MY_PREFERENCE;
+import static com.example.utils.CommonConstants.NAME;
 
 public class MainActivity extends AppCompatActivity {
-
-    private TextView textView;
-    private EditText editText;
-    private Button pressMeButton;
-    private CheckBox checkBox;
+    public static final int REQUEST_CODE = 1;
+    private EditText etName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_constraint);
+        setContentView(R.layout.activity_main);
 
-        // Initialize views
-        textView = findViewById(R.id.textView);
-        editText = findViewById(R.id.editText);
-        pressMeButton = findViewById(R.id.button2);
-        checkBox = findViewById(R.id.checkBox);
+        etName = findViewById(R.id.et_name);
+        Button btnNext = findViewById(R.id.btn_next);
 
-        // Set onClickListener for "Press Me" button
-        pressMeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Get the current text from EditText
-                String inputText = editText.getText().toString();
+        // Load the name from SharedPreferences
+        SharedPreferences preferences = getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
+        String savedName = preferences.getString(NAME, "");
+        etName.setText(savedName);
 
-                // Set the text to the TextView
-                textView.setText(inputText);
+        btnNext.setOnClickListener(v -> {
+            String name = etName.getText().toString();
+            Intent intent = new Intent(MainActivity.this, NameActivity.class);
+            intent.putExtra(NAME, name);
+            startActivityForResult(intent, REQUEST_CODE);
+        });
+    }
 
-                // Create and show a localized Toast message
-                String toastMessage = getResources().getString(R.string.toast_message);
-                Toast.makeText(MainActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Save the current name in SharedPreferences
+        SharedPreferences preferences = getSharedPreferences(MY_PREFERENCE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(NAME, etName.getText().toString());
+        editor.apply();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == 0) {
+                // User can edit the name again
+            } else if (resultCode == 1) {
+                // finishing
+                finish();
             }
-        });
-
-        // Set OnCheckedChangeListener for CheckBox
-        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            String message = "The checkbox is now " + (isChecked ? "on" : "off");
-
-            // Show Snackbar with Undo action
-            Snackbar.make(buttonView, message, Snackbar.LENGTH_LONG)
-                    .setAction("Undo", click -> {
-                        // Undo action to revert checkbox state
-                        checkBox.setChecked(!isChecked);
-                    })
-                    .show();
-        });
+        }
     }
 }
